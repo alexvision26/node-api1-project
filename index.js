@@ -24,15 +24,41 @@ server.post("/api/users", (req, res) => {
     users.push(newUser);
 
     res.status(201).json(newUser);
-  } else {
+  } else if (!name || !bio) {
     res
       .status(400)
       .json({ errorMessage: "Please provide a name and bio for the user" });
+  } else {
+    res.status(500).json({
+      errorMessage: "There was an error while saving the user to the database"
+    });
   }
 });
 
 server.get("/api/users", (req, res) => {
-  res.status(200).json(users);
+  if (!users) {
+    res
+      .status(500)
+      .json({ errorMessage: "The users information could not be retrieved." });
+  } else {
+    res.status(200).json(users);
+  }
+});
+
+// Working on GET by Id
+server.get("/api/users/:id", (req, res) => {
+  const { id } = req.params;
+  const user = users.find(x => x.id === id);
+
+  if (!id) {
+    res
+      .status(500)
+      .json({ errorMessage: "The users information could not be retrieved." });
+  } else if (user === undefined) {
+    res.status(400).json({ errorMessage: "Could not find user." });
+  } else {
+    res.status(200).json(user);
+  }
 });
 
 // Initialize Server
